@@ -255,20 +255,22 @@ CFLAGS_COMMON = -Os -ffunction-sections -fdata-sections -fstrict-volatile-bitfie
 	-mlongcalls -nostdlib \
 	-Wall -Werror -Wno-error=unused-function -Wno-error=unused-but-set-variable \
 	-Wno-error=unused-variable -Wno-error=deprecated-declarations \
-	-DESP_PLATFORM
+	-DESP_PLATFORM \
+	-I$(BOARD_DIR)
 
 CFLAGS_BASE = -std=gnu99 $(CFLAGS_COMMON) -DMBEDTLS_CONFIG_FILE='"mbedtls/esp_config.h"' -DHAVE_CONFIG_H
 CFLAGS = $(CFLAGS_BASE) $(INC) $(INC_ESPCOMP) $(INC_NEWLIB)
 CFLAGS += -DIDF_VER=\"$(IDF_VER)\"
 CFLAGS += $(CFLAGS_MOD) $(CFLAGS_EXTRA)
-CFLAGS += -I$(BOARD_DIR)
-
-ifeq ($(ESPIDF_CURHASH),$(ESPIDF_SUPHASH_V4))
-CFLAGS += -DMICROPY_ESP_IDF_4=1
-endif
 
 # this is what ESPIDF uses for c++ compilation
 CXXFLAGS = -std=gnu++11 $(CFLAGS_COMMON) $(INC) $(INC_ESPCOMP) $(CXXFLAGS_MOD)
+
+ifeq ($(ESPIDF_CURHASH),$(ESPIDF_SUPHASH_V4))
+CFLAGS += -DMICROPY_ESP_IDF_4=1
+CXXFLAGS += -DMICROPY_ESP_IDF_4=1
+endif
+
 
 LDFLAGS = -nostdlib -Map=$(@:.elf=.map) --cref
 LDFLAGS += --gc-sections -static -EL
