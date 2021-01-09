@@ -757,9 +757,10 @@ erase:
 OBJ = $(OBJ_MP)
 
 APP_LD_ARGS =
-APP_LD_ARGS += $(LDFLAGS_MOD)
+
 APP_LD_ARGS += $(addprefix -T,$(LD_FILES))
 APP_LD_ARGS += --start-group
+APP_LD_ARGS += $(LDFLAGS_MOD)
 APP_LD_ARGS += -L$(dir $(LIBGCC_FILE_NAME)) -lgcc
 APP_LD_ARGS += -L$(dir $(LIBSTDCXX_FILE_NAME)) -lstdc++
 APP_LD_ARGS += $(LIBC_LIBM)
