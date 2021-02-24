@@ -53,6 +53,30 @@ A MicroPython user C module is a directory with the following files:
   for header files), these should be added to ``CFLAGS_USERMOD`` for C code
   and to ``CXXFLAGS_USERMOD`` for C++ code.
 
+* ``usermod.cmake`` contains the CMake configuration for this module.
+
+  In ``usermod.cmake``, you may use ``${CMAKE_CURRENT_LIST_DIR}`` as the path to
+  the current module.
+
+  Your ``usermod.cmake`` should define an ``INTERFACE`` library and associate
+  your source files, compile definitions and include directories with it.
+  The library should then be linked to the ``usermod`` target.
+
+  .. code-block:: cmake
+
+      add_library(usermod_cexample INTERFACE)
+
+      target_sources(usermod_cexample INTERFACE
+          ${CMAKE_CURRENT_LIST_DIR}/examplemodule.c
+      )
+
+      target_include_directories(usermod_cexample INTERFACE
+          ${CMAKE_CURRENT_LIST_DIR}
+      )
+
+      target_link_libraries(usermod INTERFACE usermod_cexample)
+
+
   See below for full usage example.
 
 
@@ -70,9 +94,11 @@ and has a source file and a Makefile fragment with content as descibed above::
        └──usercmodule/
           └──cexample/
              ├── examplemodule.c
-             └── micropython.mk
+             ├── micropython.mk
+             └── usermod.cmake
 
-Refer to the comments in these 2 files for additional explanation.
+
+Refer to the comments in these files for additional explanation.
 Next to the ``cexample`` module there's also ``cppexample`` which
 works in the same way but shows one way of mixing C and C++ code
 in MicroPython.
@@ -97,10 +123,13 @@ applying 2 modifications:
       ├── modules/
       │   └──example1/
       │       ├──example1.c
-      │       └──micropython.mk
+      │       ├──micropython.mk
+      │       └──usermod.cmake
       │   └──example2/
       │       ├──example2.c
-      │       └──micropython.mk
+      │       ├──micropython.mk
+      │       └──usermod.cmake
+      │   └──usermod.cmake
       └── micropython/
           ├──ports/
          ... ├──stm32/
@@ -109,10 +138,21 @@ applying 2 modifications:
 
   with ``USER_C_MODULES`` set to the ``my_project/modules`` directory.
 
-- all modules found in this directory will be compiled, but only those
-  which are explicitly enabled will be availabe for importing. Enabling a
-  module is done by setting the preprocessor define from its module
-  registration to 1. For example if the source code defines the module with
+  A top level ``usermod.cmake`` - found directly in the ``my_project/modules``
+  directory - should ``include`` all of your modules.
+
+  .. code-block:: cmake
+
+      include(${CMAKE_CURRENT_LIST_DIR}/example1/usermod.cmake)
+      include(${CMAKE_CURRENT_LIST_DIR}/example2/usermod.cmake)
+
+
+- all modules found in this directory (or added via ``include`` in the top-level
+  ``usermod.cmake`` when using CMake) will be compiled, but only those which are
+  explicitly enabled will be available for importing. Enabling a module is done
+  by setting the preprocessor define from its module registration to 1.
+
+  For example if the source code defines the module with
 
   .. code-block:: c
 
