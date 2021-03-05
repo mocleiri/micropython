@@ -7,6 +7,10 @@ include(${MICROPY_DIR}/extmod/extmod.cmake)
 
 if(NOT CMAKE_BUILD_EARLY_EXPANSION)
     include(${MICROPY_DIR}/py/usermod.cmake)
+    foreach(MOD_INCLUDES ${INCLUDES_USERMOD})
+        list(APPEND MICROPY_CPP_INC_EXTRA ${MOD_INCLUDES})
+    endforeach()
+    list(APPEND MICROPY_CPP_INC_EXTRA ${MICROPY_PY_DIR})
 endif()
 
 set(MICROPY_QSTRDEFS_PORT
@@ -200,6 +204,8 @@ if(IDF_VERSION_MINOR GREATER_EQUAL 2)
     list(APPEND MICROPY_CPP_INC_EXTRA ${IDF_PATH}/components/soc/soc/${IDF_TARGET}/include)
     list(APPEND MICROPY_CPP_INC_EXTRA ${IDF_PATH}/components/soc/soc/include)
 endif()
+
+message(STATUS "MICROPY_CPP_INC_EXTRA=${MICROPY_CPP_INC_EXTRA}")
 
 # Include the main MicroPython cmake rules.
 include(${MICROPY_DIR}/py/mkrules.cmake)
